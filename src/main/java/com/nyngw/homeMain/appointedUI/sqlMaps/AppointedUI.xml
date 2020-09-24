@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nyngw.homeMain.appointedUI.dao.AppointedUIDao">
+	
+	<select id="selectCompany" resultType="com.nyngw.dto.CompanyVO" >
+		select * from company
+	</select>
+	
+	<select id="selectMember" resultType="com.nyngw.dto.MemberVO" parameterType="java.lang.String">
+		select * from member_view where mem_id=#{mem_id}
+	</select>
+	
+	
+	
+	
+	
+<!-- 	대분류 -->
+	<select id="selectBigMenu" resultType="com.nyngw.dto.BigMenuVO">
+		select * from bigmenu
+	</select>
+<!-- 	중분류 -->
+	<select id="selectMiddleMenu" resultType="com.nyngw.dto.MiddleMenuVO" parameterType="java.lang.String">
+		select * from middlemenu where mid_big_number = #{big_number}
+	</select>
+	
+<!-- 	Ui저장 -->
+	<update id="userUiInsert_UI" parameterType="com.nyngw.dto.UserInterfaceVO">
+		insert into userinterface(ui_mem_number, ui_user1, ui_user2, ui_user3, ui_autouse)
+		values(#{ui_mem_number}, #{ui_user1}, #{ui_user2}, #{ui_user3}, #{ui_autouse})
+	</update>	
+	
+	<select id="userUiSelect_UI" resultType="java.lang.Integer" parameterType="java.lang.String">
+		select count(*) from userinterface where ui_mem_number = #{mem_number}
+	</select>
+	
+	<update id="userUiUpdate_UI" parameterType="com.nyngw.dto.UserInterfaceVO">
+		update userinterface
+		set    ui_user1 = #{ui_user1},
+			   ui_user2 = #{ui_user2},
+			   ui_user3 = #{ui_user3},
+			   ui_autouse = #{ui_autouse}
+		where  ui_mem_number = #{ui_mem_number} 
+	</update>	
+	
+	<select id="userSelectInterface" resultType="com.nyngw.dto.UserInterfaceVO" parameterType="java.lang.String">
+		select * from userinterface where UI_MEM_NUMBER = #{mem_number}
+	</select>
+	
+<!-- 	공지사항 -->
+	<select id="userUiNoticeMatter_UI" resultType="com.nyngw.dto.BoardVO">
+		select * from board where board_code_number = 'code11' order by 1 desc
+	</select>
+	
+<!-- 게시판 -->
+	<select id="userUiBoardList_UI" resultType="com.nyngw.dto.BoardVO">
+		select * from board where board_code_number = 'code7' order by 1 desc
+	</select>
+	
+<!-- 주소록 -->
+	<select id="userUiMemberAddressList_UI" resultType="com.nyngw.dto.AddressBookVO">
+		select to_number(substr(mem_dept_number,5)) dept_number,
+		(select d.dept_name from department d where m.mem_dept_number = d.dept_number) mem_dept_name, 
+		mem_name, 
+		(select p.position_name from position p where m.mem_position_number = p.position_number) mem_position_name, 
+		mem_email, 
+		mem_tel, 
+		mem_addr1 
+		from member m 
+		order by 1
+	</select>
+
+<!-- 생일자 -->
+	<select id="userUiMemberBirthdayList_UI" resultType="com.nyngw.dto.BirthdayVO">
+		select to_number(substr(mem_dept_number,5)) dept_number,
+			mem_birthday,
+			(select d.dept_name from department d where m.mem_dept_number = d.dept_number) mem_dept_name, 
+			mem_name, 
+			(select p.position_name from position p where m.mem_position_number = p.position_number) mem_position_name, 
+			mem_email, 
+			mem_tel 
+			from member m 
+			where substr(mem_birthday,4,2) = SUBSTR(sysdate,4,2)
+			order by 1
+	</select>
+	
+<!-- 부서업무	 -->
+	<select id="userUiDepartmentList_UI" resultType="com.nyngw.dto.Duty_DocumentVO" parameterType="java.lang.String">
+    select * from Duty_document dd where 
+		(select m.mem_dept_number from member m where m.mem_number = dd.dd_mem_number) = 
+				(select mm.mem_dept_number from member mm where mm.mem_id = #{mem_id}) and dd_public ='y'
+		and to_char(dd_date,'yyyy/MM/dd') between (select to_char(add_months(sysdate,-1),'yyyy/mm/dd') from dual) and sysdate
+		order by 1 desc
+	</select>
+
+<!-- 개인업무	 -->
+	<select id="userUiPersonalBusinessList_UI" resultType="com.nyngw.dto.Duty_DocumentVO" parameterType="java.lang.String">
+		select * from duty_document where 1 = 1
+			and to_char(dd_date,'YYYY/MM/DD') BETWEEN (select to_char(add_months(sysdate,-1),'yyyy/mm/dd') from dual) and SYSDATE
+			and dd_mem_number = #{mem_number}
+			order by 1 desc
+	</select>
+
+<!-- 문서조회	 -->
+	<select id="userUiDocumentManagerList_UI" resultType="com.nyngw.dto.DocumentViewVO">
+		select 
+			dv_code_name,
+       		dv_doc_date,
+       		dv_doc_name,
+       		dv_doc_number,
+       		dv_mem_name
+		from documentview 
+		order by dv_doc_number desc
+	</select>
+	
+	
+	<select id="selectMiddleMenuFind_UI" parameterType="java.lang.String" resultType="com.nyngw.dto.MiddleMenuVO">
+		select * from middlemenu where mid_name = #{mid_name}
+	</select>
+
+	<select id="selectBigMiddleMenuFind_UI" parameterType="java.lang.String" resultType="com.nyngw.dto.MiddleMenuVO">
+		select * from middlemenu where mid_number = #{mid_number}
+	</select>
+	
+	<select id="userUiDutyReportList_UI" parameterType="java.util.Map" resultType="com.nyngw.dto.Duty_ReportVO">
+		select	
+			dr_number,
+			DR_CODE_NUMBER,
+			DR_CONTENT,
+			DR_DATE,
+			DR_MEM_NUMBER,
+			DR_TITLE,
+			DR_TO_MEM_NUMBER,
+			DR_WRITEDATE,
+			DR_YESNO 
+		from duty_report 
+		where to_char(dr_writedate,'yyyy/MM/dd') between (select to_char(add_months(sysdate,-1),'yyyy/mm/dd') from dual) and sysdate
+		and dr_to_mem_number = (select mem_number from member where mem_id = #{user})
+		order by 1 desc
+	</select>
+	
+<!-- 	상신문서 카운트 -->
+	<select id="userUiApprovalCount" parameterType="java.lang.String" resultType="java.lang.Integer">
+		select count(*) from Electronic_approval
+		where ea_mem_number = #{mem_number}
+	</select>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

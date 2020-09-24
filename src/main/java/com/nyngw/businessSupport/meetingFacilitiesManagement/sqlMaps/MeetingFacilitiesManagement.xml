@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nyngw.businessSupport.meetingFacilitiesManagement.dao.MeetingFacilitiesManagementDao">
+
+	<select id="selectMeetingRoom" resultType="com.nyngw.dto.MeetingRoomVO">
+		select * from meetingRoom
+	</select>
+	
+	<select id="selectReservation" parameterType="map" resultType="com.nyngw.dto.ReservationVO">
+		select * from Reservation where rv_mr_number = #{rv_mr_number} and rv_date = #{rv_date}
+	</select>
+
+	<insert id = "insertReservation" parameterType="com.nyngw.dto.ReservationVO">
+		insert into reservation
+		values('rv'||rv_seq.nextVal, #{rv_mem_number}, #{rv_mr_number}, #{rv_time}, to_date(to_char(#{rv_date},'yyyy-mm-dd'),'yyyy-mm-dd'))
+	</insert>
+	
+	<delete id="deleteReservation" parameterType="string">
+		delete from reservation
+		where rv_number = #{rv_number}
+	</delete>
+	
+</mapper>

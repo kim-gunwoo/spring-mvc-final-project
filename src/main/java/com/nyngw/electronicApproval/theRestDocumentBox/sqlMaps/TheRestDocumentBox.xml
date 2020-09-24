@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nyngw.electronicApproval.theRestDocumentBox.dao.theRestDocumentBoxDao">
+	
+	<select id="getApprovalList" parameterType="com.nyngw.dto.CommonApproval_TOTALVO" resultType="com.nyngw.dto.CommonApproval_TOTALVO">
+		select EA_NUMBER,
+       doc_name,
+       EA_TITLE  ,
+       mem_name  ,
+       EA_WRITEDATE  ,
+       EA_STARTDATE  ,
+       EA_ENDDATE  
+		from ELECTRONIC_APPROVAL,approval_line,approval_step,document,member
+		where  al_number = AST_AL_NUMBER
+		and ea_number = AST_EA_NUMBER
+		and doc_number = EA_DOC_NUMBER
+		and mem_number = EA_MEM_number
+		and al_number='C'
+		and AST_MEM_NUMBER=#{ea_mem_number}
+		<if test="ea_title != null">
+			<if test="ea_title != ''">
+				and ea_title like  '%'||#{ea_title}||'%'
+			</if>
+		</if>
+		<if test="ea_number != null">
+			<if test="ea_number != ''">
+				and ea_number like '%'||#{ea_number}||'%'
+			</if>
+		</if>
+		<if test="doc_name != null">
+			<if test="doc_name != ''">
+				and doc_name like '%'||#{doc_name}||'%'
+			</if>
+		</if>
+		 order by to_number(substr(EA_NUMBER,INSTR (EA_NUMBER, '-') +6)) desc
+	</select>
+	
+	<select id="getApprovalREList" parameterType="com.nyngw.dto.CommonApproval_TOTALVO" resultType="com.nyngw.dto.CommonApproval_TOTALVO">
+		select EA_NUMBER,
+       doc_name,
+       EA_TITLE  ,
+       mem_name  ,
+       EA_WRITEDATE  ,
+       EA_STARTDATE  ,
+       EA_ENDDATE  
+		from ELECTRONIC_APPROVAL,approval_line,approval_step,document,member
+		where  al_number = AST_AL_NUMBER
+		and ea_number = AST_EA_NUMBER
+		and doc_number = EA_DOC_NUMBER
+		and mem_number = EA_MEM_number
+		and al_number='D'
+		and AST_MEM_NUMBER=#{ea_mem_number}
+		<if test="ea_title != null">
+			<if test="ea_title != ''">
+				and ea_title like  '%'||#{ea_title}||'%'
+			</if>
+		</if>
+		<if test="ea_number != null">
+			<if test="ea_number != ''">
+				and ea_number like '%'||#{ea_number}||'%'
+			</if>
+		</if>
+		<if test="doc_name != null">
+			<if test="doc_name != ''">
+				and doc_name like '%'||#{doc_name}||'%'
+			</if>
+		</if>
+		 order by to_number(substr(EA_NUMBER,INSTR (EA_NUMBER, '-') +6)) desc
+	</select>
+	
+
+	<select id="getApprovalTOList" parameterType="com.nyngw.dto.CommonApproval_TOTALVO" resultType="com.nyngw.dto.CommonApproval_TOTALVO">
+		select distinct EA_NUMBER,
+       doc_name,
+       EA_TITLE  ,
+       mem_name  ,
+       EA_WRITEDATE  ,
+       EA_STARTDATE  ,
+       EA_ENDDATE  
+		from ELECTRONIC_APPROVAL,approval_line,approval_step,document,member
+		where  al_number = AST_AL_NUMBER
+		and ea_number = AST_EA_NUMBER
+		and doc_number = EA_DOC_NUMBER
+		and mem_number = EA_MEM_number
+		and AST_MEM_NUMBER=#{ea_mem_number}
+		<if test="ea_title != null">
+			<if test="ea_title != ''">
+				and ea_title like  '%'||#{ea_title}||'%'
+			</if>
+		</if>
+		<if test="ea_number != null">
+			<if test="ea_number != ''">
+				and ea_number like '%'||#{ea_number}||'%'
+			</if>
+		</if>
+		<if test="doc_name != null">
+			<if test="doc_name != ''">
+				and doc_name like '%'||#{doc_name}||'%'
+			</if>
+		</if>
+		  order by to_number(substr(EA_NUMBER,INSTR (EA_NUMBER, '-') +6)) desc
+	</select>
+
+</mapper>

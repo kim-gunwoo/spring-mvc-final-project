@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nyngw.electronicApproval.draft.dao.DraftDao">
+
+	<!-- 모두 검색 -->
+	<select id= "selectDocumentList" resultType = "com.nyngw.dto.DocumentVO">
+		select * from document where (doc_code_number = 'code8' or doc_code_number ='code9' or doc_code_number ='code10') and  doc_eadoc = 'y'
+	</select>
+	
+	<!-- 검색어 분류와 기안문서함으로 검색-->
+	<select id= "selectDocumentListByDocName" parameterType="com.nyngw.dto.DocumentSearchVO" resultType = "com.nyngw.dto.DocumentVO">
+		select * from document where doc_name like '%'||#{searchText}||'%' and doc_code_number like '%'||#{draftBoxOption}||'%'
+	</select>
+	<select id= "selectDocumentListByDocExplanation" parameterType="com.nyngw.dto.DocumentSearchVO" resultType = "com.nyngw.dto.DocumentVO">
+		select * from document where doc_explanation like '%'||#{searchText}||'%' and doc_code_number like '%'||#{draftBoxOption}||'%'
+	</select>
+	<select id= "selectDocumentListByDocMemNumber" parameterType="com.nyngw.dto.DocumentSearchVO" resultType = "com.nyngw.dto.DocumentVO">
+		select * from document where doc_mem_number like '%'||#{searchText}||'%' and doc_code_number like '%'||#{draftBoxOption}||'%'
+	</select>
+	<select id= "selectDocumentListByDocDate" parameterType="com.nyngw.dto.DocumentSearchVO" resultType = "com.nyngw.dto.DocumentVO">
+		select * from document where doc_date like '%'||#{searchText}||'%' and doc_code_number like '%'||#{draftBoxOption}||'%'
+	</select>
+	
+	<!-- 검색어 분류만으로 검색 -->
+	<select id= "selectDocumentListOnlyByDocName" parameterType="com.nyngw.dto.DocumentSearchVO" resultType = "com.nyngw.dto.DocumentVO">
+		select * from document where doc_name like '%'||#{searchText}||'%' and (doc_code_number = 'code8' or doc_code_number ='code9' or doc_code_number ='code10')
+	</select>
+	<select id= "selectDocumentListOnlyByDocExplanation" parameterType="com.nyngw.dto.DocumentSearchVO" resultType = "com.nyngw.dto.DocumentVO">
+		select * from document where doc_explanation like '%'||#{searchText}||'%' and (doc_code_number = 'code8' or doc_code_number ='code9' or doc_code_number ='code10')
+	</select>
+	<select id= "selectDocumentListOnlyByDocMemNumber" parameterType="com.nyngw.dto.DocumentSearchVO" resultType = "com.nyngw.dto.DocumentVO">
+		select * from document where doc_mem_number like '%'||#{searchText}||'%' and (doc_code_number = 'code8' or doc_code_number ='code9' or doc_code_number ='code10')
+	</select>
+	<select id= "selectDocumentListOnlyByDocDate" parameterType="com.nyngw.dto.DocumentSearchVO" resultType = "com.nyngw.dto.DocumentVO">
+		select * from document where doc_date like '%'||#{searchText}||'%' and (doc_code_number = 'code8' or doc_code_number ='code9' or doc_code_number ='code10')
+	</select>
+	
+	<!-- 기안함구분으로만 검색 -->
+	<select id= "selectDocumentListOnlyByDraftBoxOption" parameterType="com.nyngw.dto.DocumentSearchVO" resultType = "com.nyngw.dto.DocumentVO">
+		select * 
+		from document 
+		where (doc_name like '%'||#{searchText}||'%'
+		or doc_explanation like '%'||#{searchText}||'%'
+		or doc_mem_number like '%'||#{searchText}||'%' 
+		or doc_date like '%'||#{searchText}||'%')
+		and doc_code_number = #{draftBoxOption}
+	</select>
+	
+	<!-- 아무것도 선택 안하고 검색 -->
+	<select id= "selectDocumentListOnlyBySearchText" parameterType="com.nyngw.dto.DocumentSearchVO" resultType = "com.nyngw.dto.DocumentVO">
+		select * 
+		from document 
+		where (doc_name like '%'||#{searchText}||'%'
+		   or doc_explanation like '%'||#{searchText}||'%'
+		   or doc_mem_number like '%'||#{searchText}||'%' 
+		   or doc_date like '%'||#{searchText}||'%') 
+		   and doc_code_number = 'code8' or doc_code_number ='code9' or doc_code_number ='code10'
+	</select>
+	
+	<select id="draft_selectDepartmentList" resultType="com.nyngw.dto.DepartmentVO">
+		 select A.dept_number, A.dept_parents ,A.dept_name , A.dept_level, A.order2 
+				from (select dept_number, dept_parents, dept_name,dept_level, SYS_CONNECT_BY_PATH(to_char(dept_level,'fm000')||dept_number,'/') order2 
+				from department 
+				start with  dept_parents = 'dept0' 
+				connect by prior  dept_number = dept_parents) A 
+				where a.dept_number <![CDATA[ <> ]]> 'dept0' 
+				order by A.order2
+	</select>
+	
+	<!-- 선택한 부서의 멤버검색 -->
+	<select id="dreat_selectMemberListByDepartment" resultType="com.nyngw.dto.MemberVO" parameterType="string">
+		select m.*, p.position_level 
+		from member_view m, position p  
+		where p.position_number = m.mem_position_number
+		and m.mem_dept_number = #{dept_number}
+		order by p.position_level
+	</select>
+	
+	<!-- 검색한 멤버와 부서의 멤버검색 -->
+	<select id="dreat_selectMemberListByDepartmentMemberName" resultType="com.nyngw.dto.MemberVO" parameterType="map">
+		select * from member_view where mem_dept_number like '%'||#{dept_number}||'%' and mem_name like '%'||#{searchText}||'%'
+	</select>
+	
+	<!-- 로그인한 맴버 검색 -->
+	<select id="draft_selectMemberByMemberId" resultType="com.nyngw.dto.MemberVO" parameterType="string">
+		select * from member_view where mem_id = #{mem_id}
+	</select>
+	
+	<!-- 로그인한 맴버 검색 -->
+	<select id="draft_selectSeqNumber" resultType="int">
+		select last_number from user_sequences where sequence_name= 'EA_SEQ'
+	</select>
+	
+	<insert id="draft_insertApproval" parameterType="com.nyngw.dto.Electronic_ApprovalVO">
+		insert into electronic_approval (ea_number,ea_title,ea_startdate,ea_enddate,ea_doc_number,ea_mem_number,ea_writedate,ea_content)
+		values (#{ea_number}||ea_seq.nextval,#{ea_title},#{ea_startdate},#{ea_enddate},#{ea_doc_number},#{ea_mem_number},#{ea_writedate},#{ea_content})
+	</insert>
+	
+	<insert id="draft_insertApprovalStep" parameterType="map">
+		insert into approval_step 
+		values (#{ast_number},#{ast_ea_number},#{ast_priority},#{ast_al_number},#{ast_mem_number})
+	</insert>
+	
+	<select id="ea_selectDocContent" parameterType="string" resultType="string">
+		select doc_content from document where doc_number = #{doc_number}
+	</select>
+	
+	<delete id="draft_deleteApproval" parameterType="com.nyngw.dto.Electronic_ApprovalVO" >
+		delete approval_step
+		where ast_ea_number=#{ea_number}
+	</delete>
+</mapper>

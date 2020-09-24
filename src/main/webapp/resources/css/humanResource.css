@@ -1,0 +1,36 @@
+@CHARSET "UTF-8";
+
+.hrmInputSearch {
+	display : inline-block;
+	width : 240px;
+}
+.hrmTopSpace {
+	margin : 15px 5px 20px;
+}
+.pageWrap {
+	margin : 30px 0 70px;;
+}
+.hrTapWrap {
+	padding : 15px;
+}
+.labelMemInsert {
+	display : inline-block;
+	width : 150px;
+}
+.inputTypeMemInsert {
+	display : inline-block;
+	width : 400px;
+}
+.inputTypeMemInsertNarrow {
+	display : inline-block;
+	width : 315px;
+}
+.retirementWrap {
+	margin-bottom : 20px;
+}
+.bottomBtnWrap {
+	margin  : 20px;
+}
+.insertJoinBtnWrap {
+	margin: 15px 0px 100px;
+}

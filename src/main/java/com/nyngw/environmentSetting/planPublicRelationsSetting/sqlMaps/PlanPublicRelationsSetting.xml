@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nyngw.environmentSetting.planPublicRelationsSetting.dao.PlanPublicRelationsSettingDao">
+	
+	<!-- 회사 업무시간(정상근무 및 야근 특근) 조회 -->
+	<select id="esSelectWorking" resultType="com.nyngw.dto.Work_TimeVO">
+		select
+			wt_number,
+			TO_CHAR(wt_start_time,'HH24:MI') as wt_start_time, 
+			TO_CHAR(wt_end_time,'HH24:MI') as wt_end_time, 
+			wt_name as wt_name, 
+			wt_day,
+			wt_redday
+		from work_time
+		order by wt_number
+	</select>
+	
+	<!-- 회사 기본 근무시간 수정 -->
+	<update id="esUpdateWorkingTime" parameterType="com.nyngw.dto.CompanyVO">
+		update work_time set 
+			wt_start_time = #{wt_start_time},
+		    wt_end_time = #{wt_end_time}
+		where wt_number = #{wt_number}
+	</update>
+	
+	<!-- 출결정보 등록 -->
+	<update id="esInsertDAL" parameterType="com.nyngw.dto.CompanyVO">
+		insert into diligence_and_laziness(dal_number, dal_date, dal_attend_time, dal_off_time, dal_mem_number)
+		values ('dal'||dal_seq.nextval,#{dal_date},#{dal_attend_time},#{dal_off_time},#{dal_mem_number})
+	</update>
+
+	<!-- 회사정보(로고제외) 수정 -->
+	<update id="updateCompanyInfo" parameterType="com.nyngw.dto.CompanyVO">
+		update company set 
+			company_name=#{company_name}, 
+			company_tel=#{company_tel},
+			company_zip=#{company_zip},
+			company_addr1=#{company_addr1},
+			company_addr2=#{company_addr2}
+		where company_number = #{company_number}
+	</update>
+	
+	<!-- 회사로고경로 수정 -->
+	<update id="updateCompanyLogo" parameterType="map">
+		update company set 
+			company_logo=#{company_logo} 
+		where company_number = #{company_number}
+	</update>
+	
+	<!-- 회사정보(로고제외) 등록 -->
+	<update id="insertCompanyInfo" parameterType="com.nyngw.dto.CompanyVO">
+		insert into company (company_number,company_name,company_tel,company_zip,company_addr1,company_addr2)
+		values (com_seq.nextval, #{company_name},#{company_tel},#{company_zip},#{company_addr1},#{company_addr2})
+	</update>
+	
+	<!-- 회사 부서 개수 조회 -->
+	<select id="esSelectDeptCount" resultType="java.lang.Integer">
+		select
+			count(*)
+		from department
+	</select>
+	
+	<!-- 회사 부서 정보(View) 조회 -->
+	<select id="esSelectDepartmentView" resultType="com.nyngw.dto.DepartmentViewVO">
+		select 
+		  dept_number,
+		  dept_name,
+		  dept_membernumber,
+		  dept_tel,
+		  dept_level,
+		  dept_addr,
+		  dept_parents,
+		  mem_number,
+		  mem_name,
+		  mem_position_number,
+		  position_number,
+		  position_name
+		from dept_view
+		order by dept_level, dept_name
+	</select>
+	
+	<!-- 부서장이 될 수 있는 상위 직급 가져오기 -->
+	<select id="esSelectUpperMember" resultType="com.nyngw.dto.DepartmentViewVO">
+		<![CDATA[
+		select 
+			mem_number,
+			mem_name,
+			mem_position_number,
+			position_number,
+			position_name,
+			position_level
+		from dept_view
+		where position_level < 400
+		order by position_number, mem_number
+		]]>
+	</select>
+	
+	<!-- 회사 부서 정보 등록 -->
+	<update id="esInsertDepartment" parameterType="com.nyngw.dto.DepartmentVO">
+		insert into department (dept_number, dept_name, dept_membernumber, dept_tel, dept_level, dept_addr, dept_parents)
+		values ('dept'||dept_seq.nextval, #{dept_name},#{dept_membernumber},#{dept_tel},#{dept_level},#{dept_addr},#{dept_parents})
+	</update>
+	
+	<!-- 직급레벨 정하기위한 상위직급레벨 가져오기 -->
+	<select id="esSelectDeptLevel" parameterType="java.lang.String" resultType="com.nyngw.dto.DepartmentVO">
+		select 
+			dept_level
+		from department
+		where dept_number=#{dept_number}
+	</select>
+	
+	<!-- 하나의 회사 부서 정보를 가져오기 -->
+	<select id="esSelectOneDept" parameterType="java.lang.String" resultType="com.nyngw.dto.DepartmentVO">
+		select
+			* 
+		from department
+		where dept_number=#{dept_number}
+	</select>
+	
+	<!-- 회사 부서 정보 수정 -->
+	<update id="esUpdateDepartment" parameterType="com.nyngw.dto.DepartmentVO">
+		update department set 
+			dept_name=#{dept_name},
+			dept_membernumber = #{dept_membernumber},
+			dept_tel = #{dept_tel},
+			dept_addr = #{dept_addr} 
+		where dept_number = #{dept_number}
+	</update>
+	
+	<!-- 회사 부서 정보 삭제 -->
+	<update id="esDeleteDepartment" parameterType="java.lang.String">
+		delete from department where dept_number=#{deleteDeptNum}
+	</update>
+	
+	
+	
+	<!-- 회사 직급 개수 조회 -->
+	<select id="esSelectPositionCount" resultType="java.lang.Integer">
+		select
+			count(*) 
+		from position
+	</select>
+	
+	<!-- 회사 직급 정보 조회 -->
+	<select id="esSelectPosition" resultType="com.nyngw.dto.PositionVO">
+		select 
+			to_number(substr(position_number,9)),
+			position_number,
+			position_name,
+			position_level
+		from position
+		order by position_level, to_number(substr(position_number,9))
+	</select>
+	
+	<!-- 회사 직급 정보 등록 -->
+	<update id="esInsertPosition" parameterType="com.nyngw.dto.PositionVO">
+		insert into position (position_number, position_name, position_level)
+		values ('position'||position_seq.nextval, #{position_name},#{position_level})
+	</update>
+	
+	<!-- 하나의 회사 직급 정보를 가져오기 -->
+	<select id="esSelectOnePosition" parameterType="java.lang.String" resultType="com.nyngw.dto.PositionVO">
+		select
+			* 
+		from position
+		where position_number=#{position_number}
+	</select>
+	
+	<!-- 회사 직급 정보 수정 -->
+	<update id="esUpdatePosition" parameterType="com.nyngw.dto.PositionVO">
+		update position set 
+			position_name=#{position_name} 
+		where position_number = #{position_number}
+	</update>
+	
+	<!-- 회사 직급 정보 상위/하위 레벨로 수정 -->
+	<update id="esUpdatePositionLevel" parameterType="com.nyngw.dto.PositionVO">
+		update position set 
+			position_level=#{position_level} 
+		where position_number = #{position_number}
+	</update>
+
+	<!-- 회사 직급 정보 삭제 -->
+	<update id="esDeletePosition" parameterType="java.lang.String">
+		delete from position where position_number=#{deletePositionNum}
+	</update>
+	
+	
+	
+	<!-- 회사 급여종류 리스트 조회 -->
+	<select id="esSelectPayKindList" resultType="com.nyngw.dto.Pay_kindVO">
+		select * from pay_kind
+	</select>
+
+	<!-- 회사 급여종류 하나 조회 -->
+	<select id="esSelectPayKindOne" resultType="com.nyngw.dto.Pay_kindVO" parameterType="java.lang.String">
+		select * from pay_kind where pk_number = #{pk_number}
+	</select>
+	
+	<!-- 회사 급여관련 모든 정보 리스트 조회 -->
+	<select id="esSelectPayInfoList" resultType="com.nyngw.dto.Pay_PolicyViewVO">
+		select * from pay_policy_view
+		order by pk_number, position_level
+	</select>
+	
+	<!-- 회사 급여관련 모든 정보 중 시간당 시급 리스트 조회 -->
+	<select id="esSelectPayHourInfoList" resultType="com.nyngw.dto.Pay_PolicyViewVO">
+		select * from pay_policy_view 
+		where pk_number = 'pk1' 
+		order by pk_number, position_level 
+	</select>
+	
+	<!-- 회사 급여관련 모든 정보 중 기본급 리스트 조회 -->
+	<select id="esSelectPayInfoBasicList" resultType="com.nyngw.dto.Pay_PolicyViewVO">
+		select * from pay_policy_view
+		where pk_number = 'pk2'
+		order by pk_number, position_level
+	</select>
+	
+	<!-- 회사 급여관련 모든 정보 중 직책수당 리스트 조회 -->
+	<select id="esSelectPayInfoPositionList" resultType="com.nyngw.dto.Pay_PolicyViewVO">
+		select * from pay_policy_view
+		where pk_number = 'pk3'
+		order by pk_number, position_level
+	</select>
+	
+	<!-- 회사 급여종류 등록 -->
+	<update id="esInsertPayKind" parameterType="com.nyngw.dto.Pay_kindVO">
+		insert into pay_kind(pk_number, pk_name, pk_tax)
+		values ('pk'||pk_seq.nextval, #{pk_name}, #{pk_tax})
+	</update>
+
+	<!-- 회사 급여정책 등록 -->
+	<update id="esInsertPayPolicy" parameterType="com.nyngw.dto.Pay_kindVO">
+		insert into pay_policy (pp_number, pp_pk_number, pp_pay, pp_position_number, pp_wt_number)
+		values ('pp'||pp_seq.nextval, #{pp_pk_number} ,#{pp_pay}, #{pp_position_number}, #{pp_wt_number})
+	</update>
+	
+	<!-- 회사 급여종류 수정 -->
+	<update id="esUpdatePayKind" parameterType="com.nyngw.dto.Pay_kindVO">
+		update pay_kind set
+		  pk_name = #{pk_name},
+		  pk_tax = #{pk_tax}
+		where pk_number = #{pk_number}
+	</update>
+	
+	<!-- 회사 급여종류 삭제 -->
+	<update id="esDeletePayKind" parameterType="java.lang.String">
+		DELETE FROM pay_kind 
+		WHERE pk_number = #{pk_number}
+	</update>
+	
+	<!-- 회사 급여정책 삭제 -->
+	<update id="esDeletePayPolicy" parameterType="java.lang.String">
+		DELETE FROM pay_policy 
+		WHERE pp_number = #{pp_number}
+	</update>
+	
+	<!-- 정책 금액 수정 -->
+	<update id="esUpdatePayPolicyPrice" parameterType="com.nyngw.dto.Pay_PolicyVO">
+		update pay_policy set
+		  pp_pay = #{pp_pay}
+		where pp_number = #{pp_number}
+	</update>
+	
+	<!-- 업데이트한 시간당급여의 직책을 조회 -->
+	<select id="esSelectPayPolicyOne" resultType="com.nyngw.dto.Pay_PolicyVO" parameterType="java.lang.String">
+		select * from pay_policy
+		where pp_number = #{pp_number}
+	</select>
+
+	<!-- 업데이트한 시간당급여의 직책을 조회하여 기본급 중 같은 직책의 데이터 하나를 조회 -->
+	<select id="esSelectPayPolicyViewOne" resultType="com.nyngw.dto.Pay_PolicyViewVO" parameterType="java.lang.String">
+		select * from pay_policy_view
+		where pk_number = 'pk2'
+		and position_number = #{up_pp_position_number}
+	</select>
+	
+	<!-- 회사 급여정책 삭제 -->
+	<update id="esUpdatePayPolicyHour" parameterType="java.lang.String">
+		DELETE FROM pay_policy 
+		WHERE pp_number = #{pp_number}
+	</update>
+	
+	
+	
+	
+	
+</mapper>

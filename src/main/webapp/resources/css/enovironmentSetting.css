@@ -1,0 +1,42 @@
+@CHARSET "UTF-8";
+
+.form-group {
+    margin-bottom: 0px;
+}
+.logoDesc {
+	margin-top : 10px;
+	display : block;
+	font-size : 12px;
+}
+
+table {
+	valign : middle;
+}
+
+.deductVacation {
+	color : #f00;
+}
+
+.areaBlock {
+	display : block;
+}
+.inlineText {
+	display : inline-block;
+	width : 50px;
+	padding: 2px 4px;
+	height : 28px;
+}
+
+.inlinePayText {
+    display: inline-block;
+    width: 85px;
+    padding: 2px 4px;
+    height: 28px;
+}
+
+.table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
+    padding: 8px;
+    line-height: 1.42857143;
+    vertical-align: middle;
+    border-top: 1px solid #ddd;
+}
